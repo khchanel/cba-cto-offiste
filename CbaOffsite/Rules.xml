@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Rules>
+  <Rule>
+    <Name>Counting rule 1</Name>
+    <Mode>AverageLength</Mode>
+    <Output>average_length_of_words_starting_with_a.txt</Output>
+    <Pattern>\b(a|A)\w+</Pattern>
+  </Rule>
+  <Rule>
+    <Name>Counting rule 2</Name>
+    <Mode>CountEInB</Mode>
+    <Output>count_of_e_in_words_starting_with_b.txt</Output>
+    <Pattern>\b(b|B)\w+</Pattern>
+  </Rule>
+  <Rule>
+    <Name>Counting rule 3</Name>
+    <Mode>LongestLength</Mode>
+    <Output>longest_words_starting_with_abc.txt</Output>
+    <Pattern>\b(a|b|c)\w+</Pattern>
+  </Rule>
+  <Rule>
+    <Name>Counting rule 4</Name>
+    <Mode>Count</Mode>
+    <Output>count_of_sequence_of_words_starting_withs_c_and_a.txt</Output>
+    <Pattern>\b(c|C)\w+\s(A|a)\w+</Pattern>
+  </Rule>
+</Rules>

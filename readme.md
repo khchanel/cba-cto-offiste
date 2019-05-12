@@ -8,16 +8,26 @@ The solution is implemented as a C# .NET core 2.1 console app
 
 ## Development setup
 You will need .net core >=2.1
-You may use Visual Studio or dotnet command
+You may use Visual Studio or dotnet command:
 
-## Build
+
+### Build
 
 ```
+dotnet restore
 dotnet build
 ```
 
-## Run
-The app can be launched by issuing below command in the project root folder.  
+### Test
+To run unit tests
+
+```
+dotnet test
+```
+
+### Run
+Launch app using dotnet command
+
 ```
 dotnet run --project=CbaOffsite
 ```

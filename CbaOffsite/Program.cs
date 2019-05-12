@@ -1,4 +1,6 @@
-﻿namespace CbaOffsite
+﻿using System;
+
+namespace CbaOffsite
 {
     public class Program
     {
@@ -11,8 +13,10 @@
             };
 
             ruleManager.Load();
-            //ruleManager.WatchRulesFile();
             ruleManager.Execute();
+            ruleManager.WatchRulesFile();
+            Console.WriteLine($">>> Watching on {ruleManager.RulesConfigFilePath}. Press any key to exit");
+            Console.ReadLine();
         }
     }
 }

@@ -18,6 +18,7 @@ namespace CbaOffsite
         public string InputFile { get; set; }
 
         private FileSystemWatcher _watcher;
+        
 
 
         public RuleManager()
@@ -38,8 +39,6 @@ namespace CbaOffsite
                 Console.WriteLine($"{rule.Name} result = {result} saving to '{rule.Output}'");
                 WriteResult(rule.Output, result);
             }
-
-            WatchRulesFile();
         }
 
 
@@ -48,7 +47,14 @@ namespace CbaOffsite
         /// </summary>
         public void WatchRulesFile()
         {
-            // TODO
+            _watcher = new FileSystemWatcher
+            {
+                Path = Directory.GetCurrentDirectory(),
+                Filter = Path.GetFileName(RulesConfigFilePath),
+                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite,
+                EnableRaisingEvents = true
+            };
+            _watcher.Changed += OnRulesChanged;
         }
 
         /// <summary>
@@ -61,6 +67,10 @@ namespace CbaOffsite
         {
             var regex = new Regex(rule.Pattern, RegexOptions.Compiled);
             var matches = regex.Matches(text);
+            if (!matches.Any())
+            {
+                return "0";
+            }
 
             switch (rule.Mode)
             {
@@ -81,9 +91,21 @@ namespace CbaOffsite
             }
         }
 
-        private void RulesChanged(object sender, FileSystemEventArgs fileSystemEventArgs)
+        private void OnRulesChanged(object sender, FileSystemEventArgs fileSystemEventArgs)
         {
-            Load();
+            // work around Windows firing  changed event twice 
+            // https://stackoverflow.com/questions/1764809/filesystemwatcher-changed-event-is-raised-twice
+            try
+            {
+                _watcher.EnableRaisingEvents = false;
+
+                Load();
+                Execute();
+            }
+            finally
+            {
+                _watcher.EnableRaisingEvents = true;
+            }
         }
 
         /// <summary>
@@ -95,12 +117,14 @@ namespace CbaOffsite
             try
             {
                 // parse rules from file
-                var xmlFile = new XmlTextReader(RulesConfigFilePath);
-                var xmlSerializer = new XmlSerializer(typeof(List<Rule>), new XmlRootAttribute{ElementName = "Rules"});
-                var newRules = (List<Rule>) xmlSerializer.Deserialize(xmlFile);
+                using (var xmlFile = new XmlTextReader(RulesConfigFilePath))
+                {
+                    var xmlSerializer = new XmlSerializer(typeof(List<Rule>), new XmlRootAttribute { ElementName = "Rules" });
+                    var newRules = (List<Rule>)xmlSerializer.Deserialize(xmlFile);
 
-                // apply new rules
-                Rules = newRules;
+                    // apply new rules
+                    Rules = newRules;
+                }
             }
             catch(Exception ex)
             {

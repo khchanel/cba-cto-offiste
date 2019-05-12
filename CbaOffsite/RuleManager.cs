@@ -6,19 +6,12 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 using CbaOffsite.Rules;
-using Rule = CbaOffsite.Rules.Rule;
-
 
 namespace CbaOffsite
 {
     public class RuleManager
     {
-        public string RulesConfigFilePath { get; set; }
-        public List<Rule> Rules { get; private set; }
-        public string InputFile { get; set; }
-
         private FileSystemWatcher _watcher;
-        
 
 
         public RuleManager()
@@ -26,9 +19,13 @@ namespace CbaOffsite
             Rules = new List<Rule>();
         }
 
+        public string RulesConfigFilePath { get; set; }
+        public List<Rule> Rules { get; private set; }
+        public string InputFile { get; set; }
+
 
         /// <summary>
-        /// Execute once and start rules file watcher
+        ///     Execute once and start rules file watcher
         /// </summary>
         public void Execute()
         {
@@ -43,7 +40,7 @@ namespace CbaOffsite
 
 
         /// <summary>
-        /// Attach file watcher to monitor rules config change and reload
+        ///     Attach file watcher to monitor rules config change and reload
         /// </summary>
         public void WatchRulesFile()
         {
@@ -57,8 +54,9 @@ namespace CbaOffsite
             _watcher.Changed += OnRulesChanged;
         }
 
+
         /// <summary>
-        /// Execute rule against input
+        ///     Execute rule against input
         /// </summary>
         /// <param name="rule"></param>
         /// <param name="text"></param>
@@ -67,15 +65,14 @@ namespace CbaOffsite
         {
             var regex = new Regex(rule.Pattern, RegexOptions.Compiled);
             var matches = regex.Matches(text);
-            if (!matches.Any())
-            {
-                return "0";
-            }
+
+            // if there is no match, return empty
+            if (!matches.Any()) return null;
 
             switch (rule.Mode)
             {
                 // rule 1
-                case Mode.AverageLength: 
+                case Mode.AverageLength:
                     return matches.Average(x => x.Length).ToString("#.##");
                 // rule 2
                 case Mode.CountEInB:
@@ -88,6 +85,31 @@ namespace CbaOffsite
                     return matches.Count.ToString();
                 default:
                     throw new Exception("the given Counting mode is not implemented");
+            }
+        }
+
+
+        /// <summary>
+        ///     Load new rules from config
+        ///     keep existing rules if failed
+        /// </summary>
+        public void Load()
+        {
+            try
+            {
+                // parse rules from file
+                using (var xmlFile = new XmlTextReader(RulesConfigFilePath))
+                {
+                    var xmlSerializer = new XmlSerializer(typeof(List<Rule>), new XmlRootAttribute {ElementName = "Rules"});
+                    var newRules = (List<Rule>) xmlSerializer.Deserialize(xmlFile);
+
+                    Rules = newRules;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("Error while loading rules file. Keeping existing rules.");
+                Console.Error.WriteLine(ex.ToString());
             }
         }
 
@@ -105,31 +127,6 @@ namespace CbaOffsite
             finally
             {
                 _watcher.EnableRaisingEvents = true;
-            }
-        }
-
-        /// <summary>
-        /// Load rules from config
-        /// keep existing rules if failed
-        /// </summary>
-        public void Load()
-        {
-            try
-            {
-                // parse rules from file
-                using (var xmlFile = new XmlTextReader(RulesConfigFilePath))
-                {
-                    var xmlSerializer = new XmlSerializer(typeof(List<Rule>), new XmlRootAttribute { ElementName = "Rules" });
-                    var newRules = (List<Rule>)xmlSerializer.Deserialize(xmlFile);
-
-                    // apply new rules
-                    Rules = newRules;
-                }
-            }
-            catch(Exception ex)
-            {
-                Console.Error.WriteLine("Error while loading rules file. Keeping existing rules.");
-                Console.Error.WriteLine(ex.ToString());
             }
         }
 

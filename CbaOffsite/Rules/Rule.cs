@@ -1,8 +1,5 @@
-﻿using System;
-
-namespace CbaOffsite.Rules
+﻿namespace CbaOffsite.Rules
 {
-    [Serializable]
     public class Rule
     {
         public string Name { get; set; }

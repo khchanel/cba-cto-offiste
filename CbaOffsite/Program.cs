@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace CbaOffsite
 {
@@ -15,7 +16,10 @@ namespace CbaOffsite
             ruleManager.Load();
             ruleManager.Execute();
             ruleManager.WatchRulesFile();
-            Console.WriteLine($">>> Watching on {ruleManager.RulesConfigFilePath}. Press any key to exit");
+
+            var cwd = Directory.GetCurrentDirectory();
+            Console.WriteLine($">>> Watching file changes on {Path.Join(cwd, ruleManager.RulesConfigFilePath)}");
+            Console.WriteLine(">>> Press any key to exit");
             Console.ReadLine();
         }
     }

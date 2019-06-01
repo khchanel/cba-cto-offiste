@@ -1,6 +1,6 @@
 CBA CTO Offsite test
 =======
-[![Build Status](https://travis-ci.org/khchanel/cba-cto-offiste.svg?branch=master)](https://travis-ci.org/khchanel/cba-cto-offiste)
+[![Build Status](https://travis-ci.org/khchanel/cba-cto-offsite.svg?branch=master)](https://travis-ci.org/khchanel/cba-cto-offsite)
 
 [Specification Here](spec.pdf)
 
